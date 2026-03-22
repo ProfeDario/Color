@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { ColorFamilyCard } from './components/ColorFamilyCard';
+import { RoleSelectionModal } from './components/RoleSelectionModal';
+import { Toast } from './components/Toast';
 import { generatePalette, exportFigmaVariables, isValidHex } from './utils/colors';
 import { getColorNames } from './utils/naming';
 
@@ -13,28 +15,65 @@ const App = () => {
       isExpanded: true
     }
   ]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [toastMsg, setToastMsg] = useState(null);
 
-  const addFamily = () => {
+  const usedRoles = families.map(f => f.metadata.semanticRole).filter(r => r !== 'Custom');
+
+  const triggerToast = () => {
+    setToastMsg('No se pueden guardar dos colores con el mismo nombre porque se duplicará en Figma');
+    setTimeout(() => setToastMsg(null), 4000);
+  };
+
+  const handleRoleSelect = (role) => {
+    setIsModalOpen(false);
     const id = Date.now().toString();
     const newBase = '#10b981'; // default emerald
     const names = getColorNames(newBase);
+    
     setFamilies([...families, {
       id,
       baseColor: newBase,
-      metadata: { descriptiveName: names.descriptive, primitiveName: names.primitive, semanticRole: 'Success' },
+      metadata: { descriptiveName: names.descriptive, primitiveName: names.primitive, semanticRole: role },
       isExpanded: true
     }]);
   };
 
   const updateFamily = (id, updates) => {
+    let familyToUpdate = families.find(f => f.id === id);
+    if (!familyToUpdate) return;
+    
+    let updatedMetadata = { ...familyToUpdate.metadata };
+    
+    if (updates.metadata) {
+      updatedMetadata = { ...updatedMetadata, ...updates.metadata };
+    }
+    
+    if (updates.baseColor && updates.baseColor !== familyToUpdate.baseColor && isValidHex(updates.baseColor)) {
+      const names = getColorNames(updates.baseColor);
+      updatedMetadata = { ...updatedMetadata, descriptiveName: names.descriptive, primitiveName: names.primitive };
+    }
+
+    const newExportName = updatedMetadata.semanticRole !== 'Custom' 
+      ? updatedMetadata.semanticRole.toLowerCase() 
+      : updatedMetadata.primitiveName;
+
+    const isDuplicate = families.some(f => {
+      if (f.id === id) return false;
+      const siblingExportName = f.metadata.semanticRole !== 'Custom' 
+        ? f.metadata.semanticRole.toLowerCase() 
+        : f.metadata.primitiveName;
+      return siblingExportName === newExportName;
+    });
+
+    if (isDuplicate) {
+      triggerToast();
+      return; 
+    }
+
     setFamilies(families.map(f => {
       if (f.id === id) {
-        const updated = { ...f, ...updates };
-        if (updates.baseColor && updates.baseColor !== f.baseColor && isValidHex(updates.baseColor)) {
-          const names = getColorNames(updates.baseColor);
-          updated.metadata = { ...updated.metadata, descriptiveName: names.descriptive, primitiveName: names.primitive };
-        }
-        return updated;
+        return { ...f, ...updates, metadata: updatedMetadata };
       }
       return f;
     }));
@@ -111,7 +150,7 @@ const App = () => {
       </header>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <button onClick={addFamily} style={{ ...btnStyle, backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', padding: '0.5rem 1rem' }}>
+        <button onClick={() => setIsModalOpen(true)} style={{ ...btnStyle, backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', padding: '0.5rem 1rem' }}>
           + Add color family
         </button>
 
@@ -157,6 +196,14 @@ const App = () => {
           />
         ))}
       </div>
+
+      <RoleSelectionModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSelect={handleRoleSelect} 
+        usedRoles={usedRoles} 
+      />
+      <Toast message={toastMsg} isVisible={!!toastMsg} />
     </main>
   );
 };
