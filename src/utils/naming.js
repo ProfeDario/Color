@@ -50,3 +50,8 @@ export const getColorNames = (hex) => {
 
   return { primitive, descriptive };
 };
+
+export const normalizeName = (name) => {
+  if (!name) return '';
+  return name.trim().toLowerCase().replace(/\s+/g, '-');
+};

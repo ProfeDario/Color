@@ -33,7 +33,7 @@ export const SwatchCard = ({ tone, hex, format = 'HEX' }) => {
       className={`${styles.swatchCard} ${copied ? styles.swatchCardCopied : ''}`}
       style={{ backgroundColor: hex, color: textColor }}
       onClick={handleCopy}
-      title={`Click to copy ${format}`}
+      title={`Haz click para copiar en ${format}`}
     >
       <div className={styles.swatchInfo}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

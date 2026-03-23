@@ -11,7 +11,7 @@ export const ColorFamilyCard = ({ family, updateFamily, removeFamily, format }) 
     <div className={styles.familyCardContainer}>
       <div className={styles.familyCardHeader} onClick={() => updateFamily(family.id, { isExpanded: !family.isExpanded })}>
         <div className={styles.familyTitle}>
-          <h3>{family.metadata.semanticRole !== 'Custom' ? family.metadata.semanticRole : family.metadata.primitiveName} <span>({family.metadata.descriptiveName})</span></h3>
+          <h3>{family.metadata.name || 'Sin Nombre'}</h3>
         </div>
         
         {!family.isExpanded && palette.length > 0 && (
@@ -28,8 +28,8 @@ export const ColorFamilyCard = ({ family, updateFamily, removeFamily, format }) 
         )}
 
         <div className={styles.headerActions}>
-          <button className={styles.btnToggleView}>{family.isExpanded ? 'Collapse' : 'Expand'}</button>
-          <button className={styles.btnRemove} onClick={(e) => { e.stopPropagation(); removeFamily(family.id); }}>Delete</button>
+          <button className={styles.btnToggleView}>{family.isExpanded ? 'Colapsar' : 'Expandir'}</button>
+          <button className={styles.btnRemove} onClick={(e) => { e.stopPropagation(); removeFamily(family.id); }}>Eliminar</button>
         </div>
       </div>
 

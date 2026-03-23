@@ -143,12 +143,12 @@ export const hexToFigmaColorValue = (hex) => {
   };
 };
 
+import { normalizeName } from './naming';
+
 export const exportFigmaVariables = (families) => {
   const root = {};
   families.forEach(f => {
-    const role = f.metadata.semanticRole !== 'Custom' 
-      ? f.metadata.semanticRole.toLowerCase() 
-      : f.metadata.primitiveName;
+    const role = normalizeName(f.metadata.name) || 'palette';
     
     const figmaObj = {};
     const palette = generatePalette(f.baseColor);
