@@ -4,8 +4,10 @@ import { RoleSelectionModal } from './components/RoleSelectionModal';
 import { Toast } from './components/Toast';
 import { generatePalette, exportFigmaVariables, isValidHex } from './utils/colors';
 import { getColorNames } from './utils/naming';
+import { TypographyScreen } from './components/TypographyScreen';
 
 const App = () => {
+  const [activeTab, setActiveTab] = useState('colores');
   const [format, setFormat] = useState('HEX');
   const [families, setFamilies] = useState([
     {
@@ -145,9 +147,40 @@ const App = () => {
           Color Palette Generator
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '1.125rem' }}>
-          Generate beautiful, cohesive UI color palettes from a single base color.
+          Generate beautiful, cohesive tokens for your UI.
         </p>
+
+        {/* --- TABS --- */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '2rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+          <button 
+            onClick={() => setActiveTab('colores')}
+            style={{ 
+              background: 'none', border: 'none', padding: '0.5rem 1rem', fontSize: '1rem', 
+              fontWeight: activeTab === 'colores' ? '700' : '500', 
+              color: activeTab === 'colores' ? 'var(--primary-color)' : 'var(--text-secondary)',
+              borderBottom: activeTab === 'colores' ? '2px solid var(--primary-color)' : '2px solid transparent',
+              cursor: 'pointer', marginBottom: '-0.5rem', transition: 'all 0.2s ease'
+            }}
+          >
+            Colores
+          </button>
+          <button 
+            onClick={() => setActiveTab('tipografia')}
+            style={{ 
+              background: 'none', border: 'none', padding: '0.5rem 1rem', fontSize: '1rem', 
+              fontWeight: activeTab === 'tipografia' ? '700' : '500', 
+              color: activeTab === 'tipografia' ? 'var(--primary-color)' : 'var(--text-secondary)',
+              borderBottom: activeTab === 'tipografia' ? '2px solid var(--primary-color)' : '2px solid transparent',
+              cursor: 'pointer', marginBottom: '-0.5rem', transition: 'all 0.2s ease'
+            }}
+          >
+            Tipografía
+          </button>
+        </div>
       </header>
+
+      {activeTab === 'colores' ? (
+        <>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <button onClick={() => setIsModalOpen(true)} style={{ ...btnStyle, backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', padding: '0.5rem 1rem' }}>
@@ -196,6 +229,10 @@ const App = () => {
           />
         ))}
       </div>
+      </>
+      ) : (
+        <TypographyScreen triggerToast={(msg) => { setToastMsg(msg); setTimeout(() => setToastMsg(null), 4000); }} />
+      )}
 
       <RoleSelectionModal 
         isOpen={isModalOpen} 
